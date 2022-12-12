@@ -47,7 +47,7 @@ public class Employee extends Person {
             str += "\nРаботает удалённо";
         }
 
-        str += "\nЗарплата: " + salary;
+        str += "\nЗарплата:  " + salary;
 
         return str;
     }

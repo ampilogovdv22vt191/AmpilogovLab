@@ -35,7 +35,7 @@ public class Bank {
                 "\nКоличество сотрудников: " + getEmployees().size() +
                 "\nКоличество клиентов: " + getClients().size() +
                 "\nРейтинг: " + rating +
-                "\nДенежная сумма: " + money +
+                "\nДенежная сумма:" + String.format("%.2f", money) +
                 "\nПроцентная ставка: " + interestRate;
     }
 
