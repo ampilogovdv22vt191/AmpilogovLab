@@ -22,17 +22,17 @@ public class Main {
         UserService userService = new UserServiceImpl();
 
         for (int i = 0; i < 5; i++) {
-            banks.add(new Bank(i, String.format("bank_name%d", i)));
+            banks.add(new Bank(i, String.format("bank%d", i)));
             for (int j = 0; j < 3; j++) {
-                bankService.addOffice(banks.get(i), new BankOffice(i * 3 + j, String.format("office_name%d", i * 3 + j),
+                bankService.addOffice(banks.get(i), new BankOffice(i * 3 + j, String.format("office%d", i * 3 + j),
                         String.format("adress%d", i * 3 + j), true, 500.0));
                 bankService.addBankATM(banks.get(i), new BankATM(i * 3 + j, String.format("bank_ATM%d", i * 3 + j),
                         StatusATM.Work, 500.0));
 
                 bankOfficeService.addATM(banks.get(i).getBankOffices().get(j), banks.get(i).getBankATMS().get(j));
                 for (int k = 0; k < 5; k++) {
-                    Employee employee = new Employee(5 * (j + 3 * i) + k, String.format("Ivan%d", 5 * (j + 3 * i) + k),
-                            String.format("Serov%d", 5 * (j + 3 * i) + k), new Date(19081917), String.format("work%d", k), (double) 500 * k);
+                    Employee employee = new Employee(5 * (j + 3 * i) + k, String.format("Igor"),
+                            String.format("Sheplyakov%d", 5 * (j + 3 * i) + k), new Date(19081917), String.format("work%d", k), (double) 500 * k);
 
                     bankService.addEmployee(banks.get(i), employee);
                     bankOfficeService.addEmployee(banks.get(i).getBankOffices().get(j), employee);
@@ -43,8 +43,8 @@ public class Main {
         }
 
         for (int i = 0; i < 5; i++) {
-            users.add(new User(i, String.format("Sevy%d", i),
-                    String.format("Ivanov%d", i), new Date(10112000), String.format("job%d", i)));
+            users.add(new User(i, String.format("Dmitry"),
+                    String.format("Ampilogov%d", i), new Date(10112000), String.format("job%d", i)));
 
             for (int j = 0; j < 2; j++) {
 
