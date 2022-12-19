@@ -1,10 +1,16 @@
 package bank.service.impl;
 
 import bank.entity.*;
+import bank.service.exceptions.*;
+import bank.service.BankService;
+import bank.service.CreditAccountService;
+import bank.service.PaymentAccountService;
 import bank.service.UserService;
+import bank.utils.StatusATM;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class UserServiceImpl implements UserService {
 
@@ -47,4 +53,5 @@ public class UserServiceImpl implements UserService {
 
         return res;
     }
+
 }

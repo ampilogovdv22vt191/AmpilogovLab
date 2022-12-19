@@ -1,6 +1,7 @@
 package bank.service.impl;
 
 import bank.entity.*;
+import bank.service.exceptions.*;
 import bank.service.BankService;
 
 import java.util.ArrayList;
@@ -14,40 +15,48 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
-    public Boolean subtractMoney(Bank bank, Double sumMoney) {
-        Double sum = bank.getMoney();
-        if (sumMoney > sum)
-            return Boolean.FALSE;
-        bank.setMoney(sum - sumMoney);
-        return Boolean.TRUE;
+    public void subtractMoney(Bank bank, Double sumMoney) {
+        try {
+            Double sum = bank.getMoney();
+            if (sumMoney > sum)
+                throw new BankException("Ошибка вычитания денег", String.format( "У банка не хватает %f денег",sumMoney-sum));
+            bank.setMoney(sum - sumMoney);
+        } catch (BankException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public Boolean addBankATM (Bank bank, BankATM bankATM){
-        if (bankATM.getBank() != null || Objects.equals(bankATM.getBank(),bank))
-            return false;
+    public void addBankATM (Bank bank, BankATM bankATM){
 
+        try{
+            if (bankATM.getBank() != null)
+                throw new BankException("Попытка добавления банкомата", "Банкомат принадлежит другому банку");
+            if (Objects.equals(bankATM.getBank(),bank))
+                return;
+            if (bank.getBankATMS() == null) {
+                ArrayList<BankATM> array =new ArrayList<BankATM>();
+                array.add(bankATM);
+                bank.setBankATMS(array);
+            }
+            else{
+                ArrayList<BankATM> array = bank.getBankATMS();
+                array.add(bankATM);
+                bank.setBankATMS(array);
+            }
 
-        if (bank.getBankATMS() == null) {
-            ArrayList<BankATM> array =new ArrayList<BankATM>();
-            array.add(bankATM);
-            bank.setBankATMS(array);
+            bankATM.setBank(bank);
+        } catch (BankException e) {
+            throw new RuntimeException(e);
         }
-        else{
-            ArrayList<BankATM> array = bank.getBankATMS();
-            array.add(bankATM);
-            bank.setBankATMS(array);
-        }
 
-        bankATM.setBank(bank);
-        return true;
     }
 
     @Override
-    public Boolean deleteBankATM(Bank bank, BankATM bankATM){
+    public void deleteBankATM(Bank bank, BankATM bankATM){
+
         if (!Objects.equals(bankATM.getBank(),bank))
-            return false;
-
+            return;
         BankOfficeServiceImpl bankOfficeService =new BankOfficeServiceImpl();
 
         if (bankATM.getBankOffice() != null){
@@ -64,33 +73,39 @@ public class BankServiceImpl implements BankService {
         else
             bank.setBankATMS(null);
         bankATM.setBank(null);
-        return true;
     }
 
     @Override
-    public Boolean addEmployee(Bank bank, Employee employee){
-        if (employee.getBank() != null || Objects.equals(employee.getBank(),bank))
-            return false;
+    public void addEmployee(Bank bank, Employee employee){
+        try{
+            if (employee.getBank() != null)
+                throw new BankException("Попытка добавления работника", "Работник работает в другом банке");
 
-        employee.setDistantWork(true);
-        ArrayList<Employee> array;
-        if (bank.getEmployees() == null) {
-            array =new ArrayList<>();
-            array.add(employee);
+            if (Objects.equals(employee.getBank(),bank))
+                return;
+            employee.setDistantWork(true);
+            ArrayList<Employee> array;
+            if (bank.getEmployees() == null) {
+                array =new ArrayList<>();
+                array.add(employee);
+            }
+            else{
+                array = bank.getEmployees();
+                array.add(employee);
+            }
+            bank.setEmployees(array);
+            employee.setBank(bank);
+        } catch (BankException e) {
+            throw new RuntimeException(e);
         }
-        else{
-            array = bank.getEmployees();
-            array.add(employee);
-        }
-        bank.setEmployees(array);
-        employee.setBank(bank);
-        return true;
     }
 
     @Override
-    public Boolean deleteEmployee(Bank bank, Employee employee){
-        if (!Objects.equals(employee.getBank(),bank))
-            return false;
+    public void deleteEmployee(Bank bank, Employee employee){
+        if (!Objects.equals(employee.getBank(),bank)){
+            return;
+        }
+
 
         BankOfficeServiceImpl bankOfficeService =new BankOfficeServiceImpl();
 
@@ -110,42 +125,46 @@ public class BankServiceImpl implements BankService {
         employee.setBankOffice(null);
         employee.setBankATM(null);
         employee.setBank(null);
-        return true;
     }
 
     @Override
-    public Boolean addOffice(Bank bank, BankOffice bankOffice){
-        if (Objects.equals(bankOffice.getBank(),bank))
-            return false;
+    public void addOffice(Bank bank, BankOffice bankOffice){
+        try {
 
-        ArrayList<BankOffice> array;
-        if (bank.getBankOffices() == null) {
-            array =new ArrayList<>();
-            array.add(bankOffice);
+            if (bankOffice.getBank() != null)
+                throw new BankException("Попытка добавления офис", "Офис принадлежит другому банку");
+            if (Objects.equals(bankOffice.getBank(),bank))
+                return;
+
+            ArrayList<BankOffice> array;
+            if (bank.getBankOffices() == null) {
+                array = new ArrayList<>();
+                array.add(bankOffice);
+            } else {
+                array = bank.getBankOffices();
+                array.add(bankOffice);
+            }
+            bank.setBankOffices(array);
+            bankOffice.setBank(bank);
+        } catch (BankException e) {
+            throw new RuntimeException(e);
         }
-        else{
-            array = bank.getBankOffices();
-            array.add(bankOffice);
-        }
-        bank.setBankOffices(array);
-        bankOffice.setBank(bank);
-        return true;
     }
 
     @Override
-    public Boolean deleteOffice(Bank bank, BankOffice bankOffice){
-        if (!Objects.equals(bankOffice.getBank(),bank))
-            return false;
+    public void deleteOffice(Bank bank, BankOffice bankOffice){
+        if (!Objects.equals(bankOffice.getBank(), bank))
+            return;
 
-        BankOfficeServiceImpl bankOfficeService =new BankOfficeServiceImpl();
+        BankOfficeServiceImpl bankOfficeService = new BankOfficeServiceImpl();
         ArrayList<BankATM> bankATMS = bankOffice.getBankATMS();
-        bankATMS.forEach( bankATM -> {
-            bankOfficeService.deleteATM(bankOffice,bankATM);
+        bankATMS.forEach(bankATM -> {
+            bankOfficeService.deleteATM(bankOffice, bankATM);
         });
 
         ArrayList<Employee> employees = bankOffice.getEmployees();
         employees.forEach(employee -> {
-            bankOfficeService.deleteEmployee(bankOffice,employee);
+            bankOfficeService.deleteEmployee(bankOffice, employee);
         });
 
         ArrayList<BankOffice> bankOffices = bank.getBankOffices();
@@ -155,13 +174,12 @@ public class BankServiceImpl implements BankService {
         else
             bank.setBankOffices(bankOffices);
         bankOffice.setBank(null);
-        return true;
     }
 
     @Override
-    public Boolean addUser(Bank bank, User user){
+    public void addUser(Bank bank, User user){
         if (bank.getClients()!= null && bank.getClients().contains(user))
-            return false;
+            return;
         ArrayList<User> bankArray;
         if (bank.getClients() == null) {
             bankArray =new ArrayList<>();
@@ -183,11 +201,10 @@ public class BankServiceImpl implements BankService {
         }
         userArray.add(bank);
         user.setBanks(userArray);
-        return true;
     }
 
     @Override
-    public  Boolean deleteUser(Bank bank, User user){
+    public void deleteUser(Bank bank, User user){
 
         ArrayList<User> users = bank.getClients();
         users.remove(user);
@@ -197,7 +214,6 @@ public class BankServiceImpl implements BankService {
         else
             bank.setClients(users);
 
-        return true;
     }
 
     @Override

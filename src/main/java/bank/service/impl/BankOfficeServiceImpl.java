@@ -1,6 +1,7 @@
 package bank.service.impl;
 
 import bank.entity.*;
+import bank.service.exceptions.*;
 import bank.service.BankOfficeService;
 
 import java.util.ArrayList;
@@ -17,42 +18,52 @@ public class BankOfficeServiceImpl implements BankOfficeService {
     }
 
     @Override
-    public Boolean subtractMoney(BankOffice office, Double sumMoney) {
-        Double sumBank = office.getBank().getMoney();
-        Double sumOffice = office.getMoney();
-        if (sumOffice < sumMoney)
-            return Boolean.FALSE;
-        office.setMoney(sumOffice + sumMoney);
-        office.getBank().setMoney(sumBank + sumMoney);
-        return Boolean.TRUE;
+    public void subtractMoney(BankOffice office, Double sumMoney) {
+        try{
+            Double sumBank = office.getBank().getMoney();
+            Double sumOffice = office.getMoney();
+            if (sumOffice < sumMoney)
+                throw new BankOfficeException("Попытка cнять деньги",String.format( "У банка не хватает %f денег",sumMoney-sumOffice));
+            office.setMoney(sumOffice - sumMoney);
+            office.getBank().setMoney(sumBank - sumMoney);
+        } catch (BankOfficeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
     @Override
-    public Boolean addATM(BankOffice office, BankATM bankATM) {
-        if (!office.getMaySetATM() || bankATM.getBankOffice() != null
-                || !Objects.equals(bankATM.getBank(), office.getBank())
-                || office.getBank() == null)
-            return false;
+    public void addATM(BankOffice office, BankATM bankATM) {
+        try{
+            if (!office.getMaySetATM())
+                throw new BankOfficeException("Попытка добавить банкомат","В этот офис нельзя добавить банкомат");
+            if (office.getBank() == null)
+                throw new BankOfficeException("Попытка добавить банкомат","Офис не принадлежит ни одному банку");
+            if (bankATM.getBankOffice() != null)
+                throw new BankOfficeException("Попытка добавить банкомат","Банкомат установлен в другом банке");
+            if (!Objects.equals(bankATM.getBank(), office.getBank()))
+                throw new BankOfficeException("Попытка добавить банкомат","Банкомат и офис принадлежат разным банкам");
 
-        if (office.getBankATMS() == null) {
-            ArrayList<BankATM> array = new ArrayList<>();
-            array.add(bankATM);
-            office.setBankATMS(array);
+            if (office.getBankATMS() == null) {
+                ArrayList<BankATM> array = new ArrayList<>();
+                array.add(bankATM);
+                office.setBankATMS(array);
+            }
+            else{
+                ArrayList<BankATM> array = office.getBankATMS();
+                array.add(bankATM);
+                office.setBankATMS(array);
+            }
+            bankATM.setBankOffice(office);
+        } catch (BankOfficeException e) {
+            throw new RuntimeException(e);
         }
-        else{
-            ArrayList<BankATM> array = office.getBankATMS();
-            array.add(bankATM);
-            office.setBankATMS(array);
-        }
-        bankATM.setBankOffice(office);
-        return true;
     }
 
     @Override
-    public Boolean deleteATM(BankOffice office, BankATM bankATM) {
+    public void deleteATM(BankOffice office, BankATM bankATM) {
         if (!Objects.equals(bankATM.getBankOffice(),office))
-            return false;
+            return;
         ArrayList<BankATM> array = office.getBankATMS();
         array.remove(bankATM);
         if (array.size() == 0)
@@ -60,37 +71,45 @@ public class BankOfficeServiceImpl implements BankOfficeService {
         else
             office.setBankATMS(array);
         bankATM.setBankOffice(null);
-        return true;
     }
 
     @Override
-    public Boolean addEmployee(BankOffice office, Employee employee){
-        if (!employee.getDistantWork() || employee.getBankOffice() != null
-                || !Objects.equals(employee.getBank(), office.getBank()) || employee.getBank() == null )
-            return false;
+    public void addEmployee(BankOffice office, Employee employee){
+        try{
 
-        EmployeeServiceImpl employeeService = new EmployeeServiceImpl();
-        ArrayList<Employee> array;
-        if (office.getEmployees() == null) {
-            array = new ArrayList<>();
-            array.add(employee);
+            if (!Objects.equals(employee.getBank(), office.getBank()))
+                throw new BankOfficeException("Попытка добавить Сотрудника","Сотрудник работает в другом банке");
+
+            if (!employee.getDistantWork())
+                throw new BankOfficeException("Попытка добавить Сотрудника","Сотрудник работает удалённо");
+
+            if (employee.getBankOffice() != null)
+                throw new BankOfficeException("Попытка добавить Сотрудника","Сотрудник Рабочий работает в другом офисе");
+
+            EmployeeServiceImpl employeeService = new EmployeeServiceImpl();
+            ArrayList<Employee> array;
+            if (office.getEmployees() == null) {
+                array = new ArrayList<>();
+                array.add(employee);
+            }
+            else{
+                array = office.getEmployees();
+                array.add(employee);
+            }
+            office.setEmployees(array);
+            employeeService.toOfficeWork(employee);
+            employee.setBankOffice(office);
+
+        } catch (BankOfficeException e) {
+            throw new RuntimeException(e);
         }
-        else{
-            array = office.getEmployees();
-            array.add(employee);
-        }
-        office.setEmployees(array);
-        employeeService.toOfficeWork(employee);
-        employee.setBankOffice(office);
-        return true;
     }
 
     @Override
-    public Boolean deleteEmployee(BankOffice office, Employee employee){
+    public void deleteEmployee(BankOffice office, Employee employee){
 
         if (!Objects.equals(employee.getBankOffice(),office))
-            return false;
-
+            return;
         EmployeeServiceImpl employeeService = new EmployeeServiceImpl();
         ArrayList<Employee> array = office.getEmployees();
         array.remove(employee);
@@ -101,6 +120,5 @@ public class BankOfficeServiceImpl implements BankOfficeService {
 
         employeeService.toDistantWork(employee);
         employee.setBankOffice(null);
-        return true;
     }
 }

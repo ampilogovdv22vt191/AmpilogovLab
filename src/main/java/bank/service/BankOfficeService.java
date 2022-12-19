@@ -12,19 +12,19 @@ public interface BankOfficeService {
     /*Вычитание суммы денег из офиса, и, соответственно, вычитание суммы денег из банка, которому принадлежит
      * данный офис, с проверкой того, достаточно ли денег в офисе, чтобы их вычесть. Если не достаточно, то
      * возвращается false, иначе true*/
-    Boolean subtractMoney(BankOffice office, Double sumMoney);
+    void subtractMoney(BankOffice office, Double sumMoney);
 
     /*Добавление нового банкомата в офис, и, соответственно, добавление нового банкомата в банк, которому
      * принадлежит данный офис, с проверкой того, можно ли добавить в этот офис новый банкомат.
      * Если нельзя достаточно, то возвращается false, иначе true*/
-    Boolean addATM(BankOffice office, BankATM bankATM);
+    void addATM(BankOffice office, BankATM bankATM);
 
     /*Вычитание банкомата из офиса, и, соответственно, вычитание банкомата из банка, которому
      * принадлежит данный офис, если указанный банкомат принадлежит офису*/
-    Boolean deleteATM(BankOffice office, BankATM bankATM);
+    void deleteATM(BankOffice office, BankATM bankATM);
 
-    Boolean addEmployee(BankOffice office, Employee employee);
+    void addEmployee(BankOffice office, Employee employee);
 
-    Boolean deleteEmployee(BankOffice office, Employee employee);
+    void deleteEmployee(BankOffice office, Employee employee);
 
 }

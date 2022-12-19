@@ -3,6 +3,7 @@ package bank.service.impl;
 import bank.entity.Bank;
 import bank.entity.PaymentAccount;
 import bank.entity.User;
+import bank.service.exceptions.PaymentException;
 import bank.service.BankService;
 import bank.service.PaymentAccountService;
 
@@ -17,16 +18,20 @@ public class PaymentAccountServiceImpl implements PaymentAccountService {
     }
 
     @Override
-    public Boolean subtractMoney(PaymentAccount payAcc, Double sumMoney) {
-        if (payAcc.getSum() < sumMoney)
-            return Boolean.FALSE;
+    public void subtractMoney(PaymentAccount payAcc, Double sumMoney) {
         payAcc.setSum(payAcc.getSum() - sumMoney);
-        return Boolean.TRUE;
     }
 
     @Override
-    public Boolean addPayment(Integer id, User user, Bank bank ){
+    public void addPayment(Integer id, User user, Bank bank ){
 
+        if (user.getPaymentAccounts() != null){
+            for (PaymentAccount paymentAccount: user.getPaymentAccounts())
+            {
+                if (paymentAccount.getBank() == bank)
+                    return;
+            }
+        }
         PaymentAccount paymentAccount = new PaymentAccount(id, user, bank);
         ArrayList<PaymentAccount> paymentAccounts;
         if(user.getPaymentAccounts() == null){
@@ -39,30 +44,31 @@ public class PaymentAccountServiceImpl implements PaymentAccountService {
         BankService bankService = new BankServiceImpl();
         bankService.addUser(bank,user);
         user.setPaymentAccounts(paymentAccounts);
-        return true;
     }
 
     @Override
-    public Boolean DeletePayment(User user, Bank bank, PaymentAccount paymentAccount){
-        if (paymentAccount.getSum() < 0)
-            return false;
-
-        ArrayList<PaymentAccount> paymentAccounts = user.getPaymentAccounts();
-        paymentAccounts.remove(paymentAccount);
-        user.setPaymentAccounts(paymentAccounts);
-        boolean flag = false;
-
-        for (PaymentAccount account : paymentAccounts) {
-            if (Objects.equals(account.getBank(), bank)) {
-                flag = true;
-                break;
+    public void DeletePayment(User user, Bank bank, PaymentAccount paymentAccount){
+        try{
+            if (paymentAccount.getSum() < 0){
+                throw new PaymentException("Попытка закрыть счёт", "На счету не погашен долг");
             }
-        }
-        if (!flag){
-            BankService bankService = new BankServiceImpl();
-            bankService.deleteUser(bank,user);
-        }
+            ArrayList<PaymentAccount> paymentAccounts = user.getPaymentAccounts();
+            paymentAccounts.remove(paymentAccount);
+            user.setPaymentAccounts(paymentAccounts);
+            boolean flag = false;
 
-        return true;
+            for (PaymentAccount account : paymentAccounts) {
+                if (Objects.equals(account.getBank(), bank)) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (!flag){
+                BankService bankService = new BankServiceImpl();
+                bankService.deleteUser(bank,user);
+            }
+        } catch (PaymentException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
