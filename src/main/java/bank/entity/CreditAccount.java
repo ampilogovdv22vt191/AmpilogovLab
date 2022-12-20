@@ -1,9 +1,9 @@
 package bank.entity;
 
 import bank.entity.common.Account;
+import bank.entity.jsonClasses.JsonCreditAcc;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class CreditAccount extends Account {
     private LocalDate startDate;
@@ -30,6 +30,20 @@ public class CreditAccount extends Account {
         this.paymentAccount = paymentAccount;
     }
 
+    public void updateFromJsonClass(JsonCreditAcc jsonCreditAcc) {
+        this.setId(jsonCreditAcc.getId());
+        this.getBank().setId(jsonCreditAcc.getBankID());
+        this.getUser().setId(jsonCreditAcc.getUserID());
+        this.getPaymentAccount().setId(jsonCreditAcc.getPayAccID());
+        this.getEmployee().setId(jsonCreditAcc.getEmployeeID());
+        this.setStartDate(LocalDate.parse(jsonCreditAcc.getStartDate()));
+        this.setEndDate(LocalDate.parse(jsonCreditAcc.getEndDate()));
+        this.setCountMonth(jsonCreditAcc.getCountMonth());
+        this.setAmount(jsonCreditAcc.getAmount());
+        this.setMountsPayment(jsonCreditAcc.getMountsPayment());
+        this.setInterestRate(jsonCreditAcc.getInterestRate());
+    }
+
     @Override
     public String toString() {
         String str = "id: " + id +
@@ -41,7 +55,8 @@ public class CreditAccount extends Account {
                 "\nПроцентная ставка: " + interestRate + "%" +
                 "\nЕжемесячный платёж: " + countMonth +
                 "\nСотрудник, который выдал кредит: " + employee.getName().toString()+
-                "\nId платёжного счёта: " + paymentAccount.getId().toString();
+                "\nId платёжного счёта: " + paymentAccount.getId().toString()+
+                "\n";
         return str;
     }
 

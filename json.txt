@@ -1,0 +1,5 @@
+Платёжные счета:
+[{"id":0,"bankID":0,"userID":0,"sum":0.0}]
+
+Кредитные счета:
+[{"id":0,"bankID":0,"userID":0,"payAccID":0,"employeeID":0,"startDate":"2022-12-20","endDate":"2024-12-20","countMonth":24,"amount":100.0,"mountsPayment":4.3,"interestRate":3.1999999999999993}]

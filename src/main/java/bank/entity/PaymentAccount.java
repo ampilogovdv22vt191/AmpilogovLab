@@ -1,6 +1,7 @@
 package bank.entity;
 
 import bank.entity.common.Account;
+import bank.entity.jsonClasses.JsonPayAcc;
 
 public class PaymentAccount extends Account {
     private Double sum;
@@ -15,8 +16,16 @@ public class PaymentAccount extends Account {
         String str = "id " + id +
                 "\nБанк: " + bank.getName() +
                 "\nПользователь: " + user.getFullName() +
-                "\nСумма денег: " + sum;
+                "\nСумма денег: " + sum +
+                "\n";
         return str;
+    }
+
+    public void updateFromJsonClass(JsonPayAcc jsonPayAcc) {
+        this.setId(jsonPayAcc.getId());
+        this.getBank().setId(jsonPayAcc.getBankID());
+        this.getUser().setId(jsonPayAcc.getUserID());
+        this.setSum(jsonPayAcc.getSum());
     }
 
     public Double getSum() {
