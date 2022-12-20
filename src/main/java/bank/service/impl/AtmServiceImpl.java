@@ -1,7 +1,7 @@
 package bank.service.impl;
 
 import bank.entity.BankATM;
-import bank.service.exceptions.*;
+import bank.service.exceptions.BankAtmException;
 import bank.service.AtmService;
 import bank.utils.StatusATM;
 

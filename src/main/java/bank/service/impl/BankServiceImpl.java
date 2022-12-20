@@ -1,8 +1,8 @@
 package bank.service.impl;
 
 import bank.entity.*;
-import bank.service.exceptions.*;
 import bank.service.BankService;
+import bank.service.exceptions.BankException;
 
 import java.util.ArrayList;
 import java.util.Objects;
