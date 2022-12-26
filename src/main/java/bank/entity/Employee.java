@@ -1,9 +1,8 @@
 package bank.entity;
 
-import java.util.Date;
-
 import bank.entity.common.Person;
-import bank.utils.FullName;
+
+import java.util.Date;
 
 public class Employee extends Person {
     private String job;
@@ -47,7 +46,7 @@ public class Employee extends Person {
             str += "\nРаботает удалённо";
         }
 
-        str += "\nЗарплата: " + salary;
+        str += "\nЗарплата: " + String.format("%.2f", salary);
 
         return str;
     }

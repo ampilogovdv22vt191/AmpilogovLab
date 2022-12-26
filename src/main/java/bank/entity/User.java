@@ -1,10 +1,10 @@
 package bank.entity;
 
+import bank.entity.common.Person;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
-
-import bank.entity.common.Person;
 
 public class User extends Person {
     private String work;
@@ -25,7 +25,7 @@ public class User extends Person {
         Integer endRat = 1000;
         while ((startRat != 10000) && (creditRating == 0)) {
             if ((getMonthSalary() <= endRat) && (getMonthSalary() >= startRat))
-                creditRating = endRat / 10;
+                creditRating = endRat / 100;
             else {
                 startRat += 1000;
                 endRat += 1000;

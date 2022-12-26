@@ -1,16 +1,9 @@
 package bank.service.impl;
 
-import bank.entity.*;
-import bank.service.exceptions.*;
-import bank.service.BankService;
-import bank.service.CreditAccountService;
-import bank.service.PaymentAccountService;
+import bank.entity.CreditAccount;
+import bank.entity.PaymentAccount;
+import bank.entity.User;
 import bank.service.UserService;
-import bank.utils.StatusATM;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Objects;
 
 public class UserServiceImpl implements UserService {
 
@@ -23,7 +16,7 @@ public class UserServiceImpl implements UserService {
         int endRat = 1000;
         while ((startRat != 10000) && (creditRating == 0)) {
             if ((newMonthSalary <= endRat) && (newMonthSalary >= startRat))
-                creditRating = endRat / 10;
+                creditRating = endRat / 100;
             else {
                 startRat += 1000;
                 endRat += 1000;
